@@ -523,21 +523,22 @@
     ];
 
     const INITIAL_PROFILE = {
-      fullName: 'Janvi Kaware',
-      email: 'janvi.kaware@example.com',
-      phone: '+91 98765 43210',
-      college: 'National Institute of Technology',
+      fullName: 'Demo Student',
+      email: 'demo@student.com',
+      phone: '+1 (555) 019-2834',
+      college: 'State University',
       gradYear: '2027',
       targetGoal: GOAL_TYPES.INTERNSHIP,
       targetDomain: DOMAINS.DATA_ANALYTICS,
       skillLevel: 'Intermediate',
-      resumeFileName: 'Janvi_Kaware_Resume_2026.pdf',
-      linkedinUrl: 'https://linkedin.com/in/janvikaware',
-      githubUrl: 'https://github.com/JanviKaware27',
-      tenthMarks: '94.6%',
-      twelfthMarks: '92.4%',
-      gradCgpa: '8.85 CGPA',
-      postGradCgpa: 'Pursuing / 8.60 SGPA',
+      resumeFileName: 'Demo_Student_Resume.pdf',
+      resumeFileSize: '1.2 MB',
+      linkedinUrl: 'https://linkedin.com/in/demostudent',
+      githubUrl: 'https://github.com/demostudent',
+      tenthMarks: '92.5%',
+      twelfthMarks: '90.2%',
+      gradCgpa: '8.75 CGPA',
+      postGradCgpa: 'Pursuing / 8.50 SGPA',
       topSkills: ['SQL', 'Python', 'Power BI', 'Data Modeling', 'Statistics'],
       assessmentCompleted: true,
       assessmentScore: 67,
@@ -606,28 +607,47 @@
       const login = (userEmail, userPassword) => {
         setIsAuthenticated(true);
         localStorage.setItem('pathpilot_auth', 'true');
-        if (userEmail) {
+        if (userEmail === 'demo@student.com' || !userEmail) {
+          const demoData = {
+            fullName: 'Demo Student',
+            email: 'demo@student.com',
+            phone: '+1 (555) 019-2834',
+            college: 'State University',
+            gradYear: '2027',
+            resumeFileName: 'Demo_Student_Resume.pdf',
+            resumeFileSize: '1.2 MB',
+            linkedinUrl: 'https://linkedin.com/in/demostudent',
+            githubUrl: 'https://github.com/demostudent',
+            tenthMarks: '92.5%',
+            twelfthMarks: '90.2%',
+            gradCgpa: '8.75 CGPA',
+            postGradCgpa: 'Pursuing / 8.50 SGPA'
+          };
+          setProfile((prev) => ({ ...prev, ...demoData }));
+          try { localStorage.setItem('opportunityos_profile', JSON.stringify({ ...profile, ...demoData })); } catch (e) {}
+          showToast('Welcome to QuickApply, Demo Student!');
+        } else {
           setProfile((prev) => ({ ...prev, email: userEmail }));
+          showToast('Welcome to QuickApply!');
         }
-        showToast(`Welcome to QuickApply, ${profile.fullName.split(' ')[0]}!`);
       };
 
       const signup = (formData) => {
         const newProfile = {
           ...profile,
-          fullName: formData.fullName || 'Student Pilot',
-          email: formData.email || 'student@quickapply.dev',
-          phone: formData.phone || profile.phone || '+91 98765 43210',
-          college: formData.college || 'Institute of Technology',
+          fullName: formData.fullName || 'Student User',
+          email: formData.email,
+          phone: formData.phone || '',
+          college: formData.college || 'University',
           gradYear: formData.gradYear || '2027',
-          resumeFileName: formData.resumeFileName || profile.resumeFileName || 'Janvi_Kaware_Resume_2026.pdf',
-          resumeFileSize: formData.resumeFileSize || profile.resumeFileSize || '1.4 MB',
-          linkedinUrl: formData.linkedinUrl || profile.linkedinUrl || '',
-          githubUrl: formData.githubUrl || profile.githubUrl || '',
-          tenthMarks: formData.tenthMarks || profile.tenthMarks || '',
-          twelfthMarks: formData.twelfthMarks || profile.twelfthMarks || '',
-          gradCgpa: formData.gradCgpa || profile.gradCgpa || '',
-          postGradCgpa: formData.postGradCgpa || profile.postGradCgpa || '',
+          resumeFileName: formData.resumeFileName || 'Resume.pdf',
+          resumeFileSize: formData.resumeFileSize || '1.0 MB',
+          linkedinUrl: formData.linkedinUrl || '',
+          githubUrl: formData.githubUrl || '',
+          tenthMarks: formData.tenthMarks || '',
+          twelfthMarks: formData.twelfthMarks || '',
+          gradCgpa: formData.gradCgpa || '',
+          postGradCgpa: formData.postGradCgpa || '',
           targetDomain: formData.targetDomain || DOMAINS.DATA_ANALYTICS,
           targetGoal: formData.targetGoal || GOAL_TYPES.INTERNSHIP,
           assessmentCompleted: false,
@@ -639,7 +659,7 @@
         localStorage.setItem('opportunityos_profile', JSON.stringify(newProfile));
         setActiveTab('radar');
         setIsProfileModalOpen(false);
-        showToast(`Welcome ${newProfile.fullName}! Your profile & PDF resume are ready for Quick Apply.`);
+        showToast(`Welcome ${newProfile.fullName}! Your profile is ready.`);
       };
 
       const logout = () => {
@@ -802,7 +822,7 @@
 
             <div className="flex items-center gap-2">
               <button
-                onClick={() => login('janvi.kaware@example.com', 'password123')}
+                onClick={() => login('demo@student.com', 'password123')}
                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 hover:opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20 active:scale-95"
               >
                 <Icon name="zap" className="w-3.5 h-3.5 text-amber-300" />
@@ -1067,13 +1087,13 @@
       const handleQuickDemoFill = () => {
         setFormData((prev) => ({
           ...prev,
-          phone: '+91 98765 43210',
-          linkedinUrl: 'https://linkedin.com/in/janvikaware',
-          githubUrl: 'https://github.com/JanviKaware27',
-          tenthMarks: '94.6%',
-          twelfthMarks: '92.4%',
-          gradCgpa: '8.85 CGPA',
-          postGradCgpa: 'Pursuing / 8.60 SGPA'
+          phone: '+1 (555) 019-2834',
+          linkedinUrl: 'https://linkedin.com/in/demostudent',
+          githubUrl: 'https://github.com/demostudent',
+          tenthMarks: '92.5%',
+          twelfthMarks: '90.2%',
+          gradCgpa: '8.75 CGPA',
+          postGradCgpa: 'Pursuing / 8.50 SGPA'
         }));
       };
 
@@ -1937,8 +1957,8 @@
       const [fullName, setFullName] = useState('');
       const [college, setCollege] = useState('');
       const [phone, setPhone] = useState('');
-      const [resumeFileName, setResumeFileName] = useState('Janvi_Kaware_Resume_2026.pdf');
-      const [resumeFileSize, setResumeFileSize] = useState('1.4 MB');
+      const [resumeFileName, setResumeFileName] = useState('Demo_Student_Resume.pdf');
+      const [resumeFileSize, setResumeFileSize] = useState('1.2 MB');
       const [linkedinUrl, setLinkedinUrl] = useState('');
       const [githubUrl, setGithubUrl] = useState('');
       const [tenthMarks, setTenthMarks] = useState('');
@@ -1974,15 +1994,15 @@
         if (!fullName || !email || !password) { setFormError('Please fill in your name, email, and password.'); return; }
         signup({
           fullName, email, college,
-          phone: phone || '+91 98765 43210',
-          resumeFileName: resumeFileName || 'Janvi_Kaware_Resume_2026.pdf',
-          resumeFileSize: resumeFileSize || '1.4 MB',
-          linkedinUrl: linkedinUrl || 'https://linkedin.com/in/janvikaware',
-          githubUrl: githubUrl || 'https://github.com/JanviKaware27',
-          tenthMarks: tenthMarks || '94.6%',
-          twelfthMarks: twelfthMarks || '92.4%',
-          gradCgpa: gradCgpa || '8.85 CGPA',
-          postGradCgpa: postGradCgpa || 'Pursuing / 8.60 SGPA',
+          phone: phone || '',
+          resumeFileName: resumeFileName || 'Resume.pdf',
+          resumeFileSize: resumeFileSize || '1.0 MB',
+          linkedinUrl: linkedinUrl || '',
+          githubUrl: githubUrl || '',
+          tenthMarks: tenthMarks || '',
+          twelfthMarks: twelfthMarks || '',
+          gradCgpa: gradCgpa || '',
+          postGradCgpa: postGradCgpa || '',
           targetDomain, targetGoal
         });
       };
@@ -2056,13 +2076,13 @@
 
               {/* Demo button */}
               <div className="mb-4 p-3 bg-blue-950/40 border border-blue-500/30 rounded-xl flex items-center justify-between">
-                <span className="text-xs text-slate-200">Evaluating? Quick access as <strong>Janvi</strong>.</span>
+                <span className="text-xs text-slate-200">Want to explore? Try the demo instantly.</span>
                 <button
                   type="button"
-                  onClick={() => login('janvi.kaware@example.com', 'password123')}
-                  className="px-3 py-1 bg-blue-600 text-white font-bold text-xs rounded-lg"
+                  onClick={() => login('demo@student.com', 'password123')}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
                 >
-                  ⚡ Demo Access
+                  ⚡ Quick Demo Access
                 </button>
               </div>
 
@@ -2104,7 +2124,7 @@
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Janvi Kaware"
+                        placeholder="e.g. Alex Morgan"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
