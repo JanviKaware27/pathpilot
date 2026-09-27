@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickApply | Your Goal. Your Roadmap. Your Opportunities.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
+  <!-- React & Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-blue-600 selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, createContext, useContext } = React;
+
+    // SVG Icon Helper
+    const Icon = ({ name, className = "w-4 h-4", ...props }) => {
+      const icons = {
+        sparkles: <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>,
+        compass: <><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></>,
+        layout: <><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></>,
+        radar: <><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/><path d="M12 18h.01"/><path d="m17.99 11.66A10 10 0 0 1 12 22a10 10 0 0 1-10-10 10 10 0 0 1 2.29-6.38"/><path d="M12 12l4-2"/></>,
+        checkfile: <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/></>,
+        target: <><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>,
+        award: <><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></>,
+        calendar: <><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></>,
+        briefcase: <><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></>,
+        graduation: <><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></>,
+        trophy: <><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></>,
+        arrowRight: <path d="M5 12h14m-7-7 7 7-7 7"/>,
+        checkCircle: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>,
+        circle: <circle cx="12" cy="12" r="10"/>,
+        externalLink: <><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></>,
+        chevronDown: <path d="m6 9 6 6 6-6"/>,
+        chevronUp: <path d="m18 15-6-6-6 6"/>,
+        search: <><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>,
+        filter: <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>,
+        shield: <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>,
+        alert: <><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></>,
+        building: <><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/></>,
+        fileText: <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></>,
+        check: <polyline points="20 6 9 17 4 12"/>,
+        x: <><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></>,
+        clock: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
+        trending: <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></>,
+        layers: <><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>,
+        zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>,
+        info: <><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></>,
+        lock: <><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
+        logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></>,
+        mail: <><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></>,
+        user: <><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+        phone: <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>,
+        link: <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>,
+        edit: <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      };
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          {...props}
+        >
+          {icons[name] || icons.zap}
+        </svg>
+      );
+    };
+
+    // Database
+    const DOMAINS = {
+      DATA_ANALYTICS: 'Data Analytics',
+      DATA_SCIENCE: 'Data Science',
+      WEB_DEV: 'Web Development',
+      CLOUD_AI: 'Cloud/AI'
+    };
+
+    const GOAL_TYPES = {
+      JOB: 'Job',
+      INTERNSHIP: 'Internship',
+      HACKATHON: 'Hackathon',
+      CERTIFICATION: 'Certification'
+    };
+
+    const DIAGNOSTIC_QUESTIONS = {
+      [DOMAINS.DATA_ANALYTICS]: [
+        { id: 'da1', question: 'Which SQL clause is used to filter grouped aggregated data?', options: ['WHERE', 'HAVING', 'GROUP FILTER', 'ORDER BY'], correct: 1, skillGap: 'Advanced SQL Aggregations' },
+        { id: 'da2', question: 'In Power BI / Tableau, which calculation type evaluates row-by-row before aggregation?', options: ['Calculated Column', 'Measure', 'Window Function', 'Implicit Filter'], correct: 0, skillGap: 'Power BI DAX & Calculated Columns' },
+        { id: 'da3', question: 'Which chart is best for showing composition of categorical variance over time?', options: ['Scatter Plot', 'Stacked Area Chart', 'Box Whisker', 'Heatmap'], correct: 1, skillGap: 'Data Storytelling & Visualization' }
+      ],
+      [DOMAINS.DATA_SCIENCE]: [
+        { id: 'ds1', question: 'Which technique is primarily used to address high variance (overfitting) in decision trees?', options: ['L1 Lasso Regularization', 'Pruning / Random Forests', 'StandardScaler', 'One-Hot Encoding'], correct: 1, skillGap: 'Ensemble Learning & Tree Pruning' },
+        { id: 'ds2', question: 'When evaluation classes are heavily imbalanced (e.g. 99:1), which metric is preferred over Accuracy?', options: ['PR-AUC / F1-Score', 'R-Squared', 'Mean Squared Error', 'Adjusted R2'], correct: 0, skillGap: 'Imbalanced Classification Metrics' },
+        { id: 'ds3', question: 'In Deep Learning, what prevents vanishing gradients in deep residual networks?', options: ['Skip/Residual Connections', 'Sigmoid Activations', 'Batch Size of 1', 'Zero Padding'], correct: 0, skillGap: 'Deep Neural Net Architectures' }
+      ],
+      [DOMAINS.WEB_DEV]: [
+        { id: 'wd1', question: 'In React 18, what is the primary role of the `useCallback` hook?', options: ['To memoize calculation results', 'To memoize function references across renders', 'To trigger immediate re-render', 'To fetch REST APIs asynchronously'], correct: 1, skillGap: 'React Performance Optimization' },
+        { id: 'wd2', question: 'What HTTP status code should be returned after a successfully created REST resource?', options: ['200 OK', '201 Created', '204 No Content', '302 Found'], correct: 1, skillGap: 'RESTful API Standards & Statuses' },
+        { id: 'wd3', question: 'Which CSS property creates a new stacking context without modifying z-index?', options: ['display: flex', 'opacity: 0.99', 'color: inherit', 'margin: auto'], correct: 1, skillGap: 'Modern CSS Stacking & Layouts' }
+      ],
+      [DOMAINS.CLOUD_AI]: [
+        { id: 'ca1', question: 'In Kubernetes, what workload controller ensures exactly one pod replica runs on every cluster node?', options: ['StatefulSet', 'DaemonSet', 'Deployment', 'ReplicaSet'], correct: 1, skillGap: 'Kubernetes Workload Orchestration' },
+        { id: 'ca2', question: 'In Cloud architecture, which storage class is optimal for infrequent access with millisecond retrieval?', options: ['S3 Glacier Flexible', 'S3 Standard-IA', 'EBS Cold HDD', 'Google Archive'], correct: 1, skillGap: 'Cloud Storage Tier Optimization' },
+        { id: 'ca3', question: 'In Large Language Model deployment, what is the purpose of Quantization (e.g. INT8 / FP4)?', options: ['Reduce model memory footprint & inference latency', 'Increase model parameter count', 'Generate vector embeddings', 'Enforce prompt guardrails'], correct: 0, skillGap: 'LLM Inference Optimization & Quantization' }
+      ]
+    };
+
+    const ROADMAP_TEMPLATES = {
+      [DOMAINS.DATA_ANALYTICS]: [
+        {
+          id: 'phase-1', phaseName: 'Phase 1: Foundation', description: 'Master core analytical thinking, statistics, and relational data modeling.',
+          tasks: [
+            { id: 'da-t1', title: 'SQL Joins, Subqueries & CTEs', completed: true, weight: 6 },
+            { id: 'da-t2', title: 'Descriptive & Inferential Statistics', completed: true, weight: 6 },
+            { id: 'da-t3', title: 'Excel Advanced Formulas (XLOOKUP, Pivot Tables)', completed: true, weight: 5 }
+          ]
+        },
+        {
+          id: 'phase-2', phaseName: 'Phase 2: Core Tools', description: 'Command modern business intelligence tools and exploratory data analytics.',
+          tasks: [
+            { id: 'da-t4', title: 'Power BI / Tableau Interactive Dashboards', completed: false, weight: 8 },
+            { id: 'da-t5', title: 'Data Cleaning with Pandas & Python', completed: false, weight: 8 },
+            { id: 'da-t6', title: 'SQL Window Functions (ROW_NUMBER, DENSE_RANK)', completed: true, weight: 7 }
+          ]
+        },
+        {
+          id: 'phase-3', phaseName: 'Phase 3: Practical Projects', description: 'Ship production-ready analytical case studies with executive insights.',
+          tasks: [
+            { id: 'da-t7', title: 'E-Commerce Cohort Retention Analysis', completed: false, weight: 10 },
+            { id: 'da-t8', title: 'Financial KPI Executive Dashboard', completed: false, weight: 10 },
+            { id: 'da-t9', title: 'Customer Churn Root Cause Analysis', completed: false, weight: 10 }
+          ]
+        },
+        {
+          id: 'phase-4', phaseName: 'Phase 4: Career Readiness', description: 'Portfolio polishing, behavioral storytelling, and technical interview simulations.',
+          tasks: [
+            { id: 'da-t10', title: 'GitHub / Notion Data Portfolio live deploy', completed: false, weight: 10 },
+            { id: 'da-t11', title: 'LeetCode / StrataScratch 50 SQL challenges', completed: false, weight: 10 },
+            { id: 'da-t12', title: 'STAR Method Presentation on Case Studies', completed: false, weight: 10 }
+          ]
+        }
+      ],
+      [DOMAINS.DATA_SCIENCE]: [
+        {
+          id: 'phase-1', phaseName: 'Phase 1: Foundation', description: 'Linear Algebra, Probability, and Python programming.',
+          tasks: [
+            { id: 'ds-t1', title: 'Linear Algebra & Multivariate Calculus', completed: true, weight: 6 },
+            { id: 'ds-t2', title: 'Probability Distributions & Hypothesis Testing', completed: true, weight: 6 },
+            { id: 'ds-t3', title: 'Object-Oriented Python & NumPy', completed: true, weight: 6 }
+          ]
+        },
+        {
+          id: 'phase-2', phaseName: 'Phase 2: Core Tools', description: 'Scikit-Learn, Feature Engineering, and Model Validation.',
+          tasks: [
+            { id: 'ds-t4', title: 'Supervised Learning (Regression & Classifiers)', completed: false, weight: 8 },
+            { id: 'ds-t5', title: 'Feature Selection & Dimensionality Reduction', completed: false, weight: 8 },
+            { id: 'ds-t6', title: 'Model Evaluation Metrics (ROC-AUC, Precision-Recall)', completed: false, weight: 8 }
+          ]
+        },
+        {
+          id: 'phase-3', phaseName: 'Phase 3: Practical Projects', description: 'End-to-end Machine Learning pipelines with deployment.',
+          tasks: [
+            { id: 'ds-t7', title: 'Predictive Maintenance ML Pipeline with FastAPI', completed: false, weight: 10 },
+            { id: 'ds-t8', title: 'Customer Segmentation using Clustering', completed: false, weight: 10 },
+            { id: 'ds-t9', title: 'Computer Vision / NLP fine-tuning benchmark', completed: false, weight: 10 }
+          ]
+        },
+        {
+          id: 'phase-4', phaseName: 'Phase 4: Career Readiness', description: 'ML System Design and Kaggle contest participation.',
+          tasks: [
+            { id: 'ds-t10', title: 'Kaggle Notebook Grandmaster / Competition Medal', completed: false, weight: 10 },
+            { id: 'ds-t11', title: 'MLOps: MLflow tracking & Docker containers', completed: false, weight: 10 },
+            { id: 'ds-t12', title: 'Live Technical System Design Mock Interview', completed: false, weight: 8 }
+          ]
+        }
+      ],
+      [DOMAINS.WEB_DEV]: [
+        {
+          id: 'phase-1', phaseName: 'Phase 1: Foundation', description: 'Semantic HTML5, CSS3 Architecture, and Modern ES6+ JavaScript.',
+          tasks: [
+            { id: 'wd-t1', title: 'JavaScript Engine: Event Loop, Closures, Promises', completed: true, weight: 6 },
+            { id: 'wd-t2', title: 'CSS Grid, Flexbox & Responsive Layouts', completed: true, weight: 6 },
+            { id: 'wd-t3', title: 'Git branching & Pull Request workflow', completed: true, weight: 6 }
+          ]
+        },
+        {
+          id: 'phase-2', phaseName: 'Phase 2: Core Tools', description: 'Component architecture, state management, and API design.',
+          tasks: [
+            { id: 'wd-t4', title: 'React Hooks, Custom Hooks & Context API', completed: false, weight: 8 },
+            { id: 'wd-t5', title: 'Tailwind CSS & UI Component Libraries', completed: true, weight: 7 },
+            { id: 'wd-t6', title: 'RESTful API Integration & React Query', completed: false, weight: 8 }
+          ]
+        },
+        {
+          id: 'phase-3', phaseName: 'Phase 3: Practical Projects', description: 'Full-stack production applications with auth & persistent DB.',
+          tasks: [
+            { id: 'wd-t7', title: 'Fullstack SaaS with Auth, Stripe & PostgreSQL', completed: false, weight: 10 },
+            { id: 'wd-t8', title: 'Real-time Collaborative App using WebSockets', completed: false, weight: 10 },
+            { id: 'wd-t9', title: 'SSR & Jamstack app using Next.js / Vite', completed: false, weight: 9 }
+          ]
+        },
+        {
+          id: 'phase-4', phaseName: 'Phase 4: Career Readiness', description: 'Web performance, accessibility (a11y), and live deployments.',
+          tasks: [
+            { id: 'wd-t10', title: 'Lighthouse 95+ Score & Core Web Vitals audit', completed: false, weight: 10 },
+            { id: 'wd-t11', title: 'Comprehensive Portfolio on Custom Domain', completed: false, weight: 10 },
+            { id: 'wd-t12', title: 'Frontend System Design & Coding Prep', completed: false, weight: 10 }
+          ]
+        }
+      ],
+      [DOMAINS.CLOUD_AI]: [
+        {
+          id: 'phase-1', phaseName: 'Phase 1: Foundation', description: 'Linux systems, networking fundamentals, and Python scripting.',
+          tasks: [
+            { id: 'ca-t1', title: 'Linux Bash Scripting & System Administration', completed: true, weight: 6 },
+            { id: 'ca-t2', title: 'TCP/IP, DNS, VPCs, and Subnetting Architecture', completed: true, weight: 6 },
+            { id: 'ca-t3', title: 'Cloud Fundamentals (IAM, Compute, Storage)', completed: true, weight: 6 }
+          ]
+        },
+        {
+          id: 'phase-2', phaseName: 'Phase 2: Core Tools', description: 'Containerization, IaC, and Cloud Services.',
+          tasks: [
+            { id: 'ca-t4', title: 'Docker Multi-stage Builds & Compose', completed: false, weight: 8 },
+            { id: 'ca-t5', title: 'Kubernetes Pods, Services & Ingress', completed: false, weight: 8 },
+            { id: 'ca-t6', title: 'Terraform Infrastructure as Code (IaC)', completed: false, weight: 8 }
+          ]
+        },
+        {
+          id: 'phase-3', phaseName: 'Phase 3: Practical Projects', description: 'Autonomous agents, RAG pipelines, and automated CI/CD.',
+          tasks: [
+            { id: 'ca-t7', title: 'Production RAG System with Vector Database', completed: false, weight: 10 },
+            { id: 'ca-t8', title: 'Automated CI/CD Pipeline with GitHub Actions', completed: false, weight: 10 },
+            { id: 'ca-t9', title: 'Fine-tuned SLM Serverless API on Modal', completed: false, weight: 10 }
+          ]
+        },
+        {
+          id: 'phase-4', phaseName: 'Phase 4: Career Readiness', description: 'Cloud Certifications and enterprise architecture case studies.',
+          tasks: [
+            { id: 'ca-t10', title: 'AWS Solutions Architect / GCP Cloud Engineer Prep', completed: false, weight: 10 },
+            { id: 'ca-t11', title: 'Cloud Cost Optimization & FinOps Audit Report', completed: false, weight: 8 },
+            { id: 'ca-t12', title: 'Distributed Systems Design Interviews', completed: false, weight: 10 }
+          ]
+        }
+      ]
+    };
+
+    const MOCK_OPPORTUNITIES = [
+      {
+        id: 'opp-1',
+        title: 'Data Analyst Intern (Summer 2026)',
+        company: 'Spotify Technology S.A.',
+        type: GOAL_TYPES.INTERNSHIP,
+        domain: DOMAINS.DATA_ANALYTICS,
+        location: 'Remote / Hybrid (New York, NY)',
+        stipendOrSalary: '$48 - $55 / hr',
+        deadline: '2026-10-15',
+        daysLeft: 18,
+        requiredSkills: ['SQL', 'Power BI', 'Python', 'Exploratory Data Analysis'],
+        sourceUrl: 'https://www.lifeatspotify.com/jobs',
+        description: 'Collaborate with the Content & Creator Insights team to evaluate user streaming behaviors and produce dashboard summaries for artist management.',
+        whyFit: {
+          goalMatch: 'Direct alignment with your Summer Internship target.',
+          domainMatch: '100% matched to Data Analytics specialization.',
+          skillMatch: 'You have mastered SQL Joins & Statistics; Power BI is in progress on your roadmap.',
+          roadmapImpact: 'Completing Phase 2 "Power BI Interactive Dashboards" increases qualification to 98%.'
+        }
+      },
+      {
+        id: 'opp-2',
+        title: 'Associate Business Intelligence Analyst',
+        company: 'Stripe',
+        type: GOAL_TYPES.JOB,
+        domain: DOMAINS.DATA_ANALYTICS,
+        location: 'San Francisco, CA / Remote',
+        stipendOrSalary: '$115,000 - $135,000 / yr',
+        deadline: '2026-10-05',
+        daysLeft: 8,
+        requiredSkills: ['SQL Window Functions', 'Tableau', 'Cohort Retention', 'Financial KPIs'],
+        sourceUrl: 'https://stripe.com/jobs',
+        description: 'Architect self-serve analytics dashboards and measure revenue churn across global payment volumes.',
+        whyFit: {
+          goalMatch: 'High tier entry-level analyst position matching your career goals.',
+          domainMatch: 'Data Analytics and FinTech analytics focus.',
+          skillMatch: 'Requires SQL Window Functions which you have completed in Phase 2.',
+          roadmapImpact: 'Unlocks priority review when you finish the E-Commerce Cohort Retention project.'
+        }
+      },
+      {
+        id: 'opp-3',
+        title: 'Global FinTech Data Hackathon 2026',
+        company: 'JPMorgan Chase & Co.',
+        type: GOAL_TYPES.HACKATHON,
+        domain: DOMAINS.DATA_ANALYTICS,
+        location: 'Virtual / Global',
+        stipendOrSalary: '$35,000 Prize Pool',
+        deadline: '2026-10-02',
+        daysLeft: 5,
+        requiredSkills: ['SQL', 'Data Storytelling', 'Dashboard Design', 'Excel'],
+        sourceUrl: 'https://careers.jpmorgan.com/global/en/students',
+        description: '48-hour competitive sprint solving fraud anomaly patterns using structured transaction ledgers.',
+        whyFit: {
+          goalMatch: 'Immediate sprint opportunity to earn credentials and fast-track interview bypass.',
+          domainMatch: 'Focuses on Data Analytics & Storytelling.',
+          skillMatch: 'Matches 90% of your foundational SQL and presentation skills.',
+          roadmapImpact: 'Fulfills Practical Projects milestone directly.'
+        }
+      },
+      {
+        id: 'opp-4',
+        title: 'Machine Learning Engineering Intern',
+        company: 'NVIDIA',
+        type: GOAL_TYPES.INTERNSHIP,
+        domain: DOMAINS.DATA_SCIENCE,
+        location: 'Santa Clara, CA / Austin, TX',
+        stipendOrSalary: '$55 - $65 / hr',
+        deadline: '2026-10-12',
+        daysLeft: 15,
+        requiredSkills: ['PyTorch', 'Python', 'Feature Engineering', 'CUDA Basics'],
+        sourceUrl: 'https://www.nvidia.com/en-us/about-nvidia/careers/',
+        description: 'Optimize deep learning inference kernels and benchmark neural networks for edge computing platforms.',
+        whyFit: {
+          goalMatch: 'Prestigious engineering internship for aspiring AI/ML researchers.',
+          domainMatch: 'Direct alignment with Data Science and Deep Learning.',
+          skillMatch: 'Requires Python OOP & Scikit-Learn foundation from Phase 1.',
+          roadmapImpact: 'Completing Phase 3 Predictive Pipeline project will boost confidence.'
+        }
+      },
+      {
+        id: 'opp-5',
+        title: 'Junior Data Scientist',
+        company: 'Airbnb',
+        type: GOAL_TYPES.JOB,
+        domain: DOMAINS.DATA_SCIENCE,
+        location: 'Remote (US/Canada)',
+        stipendOrSalary: '$130,000 - $155,000 / yr',
+        deadline: '2026-10-25',
+        daysLeft: 28,
+        requiredSkills: ['A/B Testing', 'Python', 'Scikit-Learn', 'Statistical Inference'],
+        sourceUrl: 'https://careers.airbnb.com',
+        description: 'Design rigorous experimentation frameworks, run hypothesis tests on guest conversion, and deploy machine learning models.',
+        whyFit: {
+          goalMatch: 'Matches long-term Data Science employment objectives.',
+          domainMatch: 'Applied Data Science & Product Experimentation.',
+          skillMatch: 'Strong synergy with your hypothesis testing foundation.',
+          roadmapImpact: 'Unlocks top 5% candidate tier with Phase 4 system design practice.'
+        }
+      },
+      {
+        id: 'opp-6',
+        title: 'Frontend Developer Intern (React / TypeScript)',
+        company: 'Figma',
+        type: GOAL_TYPES.INTERNSHIP,
+        domain: DOMAINS.WEB_DEV,
+        location: 'San Francisco, CA / Hybrid',
+        stipendOrSalary: '$52 - $60 / hr',
+        deadline: '2026-10-08',
+        daysLeft: 11,
+        requiredSkills: ['React', 'TypeScript', 'Tailwind CSS', 'Web Performance'],
+        sourceUrl: 'https://www.figma.com/careers/',
+        description: 'Work with the Design Systems engineering team to build accessible, lightning-fast UI components used by millions of designers.',
+        whyFit: {
+          goalMatch: 'High reputation internship for modern web developers.',
+          domainMatch: '100% matched to Web Development.',
+          skillMatch: 'Matches React hooks and Tailwind CSS proficiencies.',
+          roadmapImpact: 'Directly supported by completing your Phase 2 React Context and Phase 4 Lighthouse audit.'
+        }
+      },
+      {
+        id: 'opp-7',
+        title: 'Full-Stack Software Engineer (Early Career)',
+        company: 'Vercel',
+        type: GOAL_TYPES.JOB,
+        domain: DOMAINS.WEB_DEV,
+        location: 'Remote Worldwide',
+        stipendOrSalary: '$120,000 - $145,000 / yr',
+        deadline: '2026-10-30',
+        daysLeft: 33,
+        requiredSkills: ['Next.js', 'React', 'Node.js', 'PostgreSQL', 'Tailwind CSS'],
+        sourceUrl: 'https://vercel.com/careers',
+        description: 'Develop next-generation frontend developer infrastructure, serverless runtimes, and developer collaboration workflows.',
+        whyFit: {
+          goalMatch: 'Premier full-time entry opportunity for modern web practitioners.',
+          domainMatch: 'Web Development / Next.js ecosystem.',
+          skillMatch: 'Matches React, modern CSS, and component architecture.',
+          roadmapImpact: 'Completing Phase 3 Fullstack SaaS project ensures high match.'
+        }
+      },
+      {
+        id: 'opp-8',
+        title: 'HackMIT 2026 - Global Student Hackathon',
+        company: 'MIT TechX',
+        type: GOAL_TYPES.HACKATHON,
+        domain: DOMAINS.WEB_DEV,
+        location: 'Cambridge, MA / Hybrid',
+        stipendOrSalary: '$50,000 in Prizes & Grants',
+        deadline: '2026-10-03',
+        daysLeft: 6,
+        requiredSkills: ['React', 'REST APIs', 'Fast Prototyping', 'Git'],
+        sourceUrl: 'https://hackmit.org',
+        description: 'Join 1,000+ top student builders for 36 hours of intensive product hacking with mentorship from top tech leaders.',
+        whyFit: {
+          goalMatch: 'Immediate credential and networking multiplier.',
+          domainMatch: 'Web Development & Full-Stack Prototyping.',
+          skillMatch: 'Your JavaScript and React stack is ready for fast iteration.',
+          roadmapImpact: 'Fulfills Collaborative App milestone.'
+        }
+      },
+      {
+        id: 'opp-9',
+        title: 'Cloud Infrastructure & DevOps Intern',
+        company: 'Datadog',
+        type: GOAL_TYPES.INTERNSHIP,
+        domain: DOMAINS.CLOUD_AI,
+        location: 'New York, NY / Remote',
+        stipendOrSalary: '$50 - $58 / hr',
+        deadline: '2026-10-18',
+        daysLeft: 21,
+        requiredSkills: ['Linux', 'Docker', 'Kubernetes', 'Python', 'AWS'],
+        sourceUrl: 'https://careers.datadoghq.com',
+        description: 'Scale observability agents across millions of nodes, implement automated CI/CD pipelines, and tune Kubernetes workloads.',
+        whyFit: {
+          goalMatch: 'Premier internship in observability and cloud engineering.',
+          domainMatch: 'Direct alignment with Cloud/AI.',
+          skillMatch: 'Linux and networking fundamentals already completed in Phase 1.',
+          roadmapImpact: 'Aligns with Phase 2 Docker containerization tasks.'
+        }
+      },
+      {
+        id: 'opp-10',
+        title: 'AI Platform Engineer (Generative AI)',
+        company: 'Scale AI',
+        type: GOAL_TYPES.JOB,
+        domain: DOMAINS.CLOUD_AI,
+        location: 'San Francisco, CA',
+        stipendOrSalary: '$140,000 - $175,000 / yr',
+        deadline: '2026-11-05',
+        daysLeft: 39,
+        requiredSkills: ['Kubernetes', 'LangChain', 'Vector DBs', 'Python', 'IaC'],
+        sourceUrl: 'https://scale.com/careers',
+        description: 'Deploy enterprise-grade Large Language Model evaluation pipelines, orchestration engines, and high-throughput vector indexers.',
+        whyFit: {
+          goalMatch: 'Top tier early career AI Infrastructure role.',
+          domainMatch: 'Cloud & Applied Generative AI.',
+          skillMatch: 'Synergizes with Linux, Python, and container infrastructure.',
+          roadmapImpact: 'Completing Phase 3 Production RAG project provides direct interview proof.'
+        }
+      },
+      {
+        id: 'opp-11',
+        title: 'AWS Certified Solutions Architect Voucher',
+        company: 'Amazon Web Services',
+        type: GOAL_TYPES.CERTIFICATION,
+        domain: DOMAINS.CLOUD_AI,
+        location: 'Online Exam',
+        stipendOrSalary: '100% Student Exam Voucher + Credential',
+        deadline: '2026-10-09',
+        daysLeft: 12,
+        requiredSkills: ['AWS IAM', 'VPC Architecture', 'EC2 & S3', 'High Availability'],
+        sourceUrl: 'https://aws.amazon.com/certification/',
+        description: 'Industry-standard accreditation validating expertise in designing distributed, resilient cloud architectures on AWS.',
+        whyFit: {
+          goalMatch: 'Validates cloud knowledge with employer-recognized badge.',
+          domainMatch: 'Cloud/AI core architecture.',
+          skillMatch: 'Overlaps with your completed Phase 1 Cloud Fundamentals.',
+          roadmapImpact: 'Directly checks off Phase 4 Career Certification requirement.'
+        }
+      },
+      {
+        id: 'opp-12',
+        title: 'Google Professional Data Analytics Certificate',
+        company: 'Google Career Certificates',
+        type: GOAL_TYPES.CERTIFICATION,
+        domain: DOMAINS.DATA_ANALYTICS,
+        location: 'Coursera / Self-Paced',
+        stipendOrSalary: 'Employer Consortium Access',
+        deadline: '2026-10-20',
+        daysLeft: 23,
+        requiredSkills: ['SQL', 'Spreadsheets', 'Tableau', 'R Programming'],
+        sourceUrl: 'https://grow.google/certificates/data-analytics/',
+        description: 'Equips students with job-ready data cleaning, SQL query, and visualization skills recognized by 150+ employer partners.',
+        whyFit: {
+          goalMatch: 'Accelerates qualification for full-time analyst roles.',
+          domainMatch: 'Data Analytics.',
+          skillMatch: 'Covers spreadsheet modeling and data storytelling.',
+          roadmapImpact: 'Fulfills foundational portfolio proof.'
+        }
+      }
+    ];
+
+    const INITIAL_PROFILE = {
+      fullName: 'Janvi Kaware',
+      email: 'janvi.kaware@example.com',
+      phone: '+91 98765 43210',
+      college: 'National Institute of Technology',
+      gradYear: '2027',
+      targetGoal: GOAL_TYPES.INTERNSHIP,
+      targetDomain: DOMAINS.DATA_ANALYTICS,
+      skillLevel: 'Intermediate',
+      resumeFileName: 'Janvi_Kaware_Resume_2026.pdf',
+      linkedinUrl: 'https://linkedin.com/in/janvikaware',
+      githubUrl: 'https://github.com/JanviKaware27',
+      tenthMarks: '94.6%',
+      twelfthMarks: '92.4%',
+      gradCgpa: '8.85 CGPA',
+      postGradCgpa: 'Pursuing / 8.60 SGPA',
+      topSkills: ['SQL', 'Python', 'Power BI', 'Data Modeling', 'Statistics'],
+      assessmentCompleted: true,
+      assessmentScore: 67,
+      skillGaps: ['Power BI DAX & Calculated Columns', 'E-Commerce Cohort Analysis']
+    };
+
+    const AppContext = createContext(null);
+
+    const AppProvider = ({ children }) => {
+      const [profile, setProfile] = useState(() => {
+        try {
+          const saved = localStorage.getItem('opportunityos_profile');
+          return saved ? JSON.parse(saved) : INITIAL_PROFILE;
+        } catch { return INITIAL_PROFILE; }
+      });
+
+      const [roadmaps, setRoadmaps] = useState(() => {
+        try {
+          const saved = localStorage.getItem('opportunityos_roadmaps');
+          return saved ? JSON.parse(saved) : ROADMAP_TEMPLATES;
+        } catch { return ROADMAP_TEMPLATES; }
+      });
+
+      const [applications, setApplications] = useState(() => {
+        try {
+          const saved = localStorage.getItem('opportunityos_applications');
+          if (saved) return JSON.parse(saved);
+          return [{
+            id: 'app-seed-1',
+            oppId: 'opp-1',
+            title: 'Data Analyst Intern (Summer 2026)',
+            company: 'Spotify Technology S.A.',
+            type: GOAL_TYPES.INTERNSHIP,
+            domain: DOMAINS.DATA_ANALYTICS,
+            appliedDate: '2026-09-24 10:45 AM',
+            status: 'Applied',
+            sourceUrl: 'https://www.lifeatspotify.com/jobs'
+          }];
+        } catch { return []; }
+      });
+
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [quickApplyModalOpp, setQuickApplyModalOpp] = useState(null);
+      const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+      const [toastMessage, setToastMessage] = useState(null);
+      const [globalSearchQuery, setGlobalSearchQuery] = useState('');
+
+      const triggerSearch = (query) => {
+        setGlobalSearchQuery(query);
+        setActiveTab('radar');
+      };
+
+      const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        try { return localStorage.getItem('pathpilot_auth') === 'true'; } catch { return false; }
+      });
+
+      const updateProfile = (updatedFields) => {
+        setProfile((prev) => {
+          const next = { ...prev, ...updatedFields };
+          try { localStorage.setItem('opportunityos_profile', JSON.stringify(next)); } catch (e) {}
+          return next;
+        });
+        showToast('Candidate Profile saved & verified for ⚡ Quick Apply!');
+      };
+
+      const login = (userEmail, userPassword) => {
+        setIsAuthenticated(true);
+        localStorage.setItem('pathpilot_auth', 'true');
+        if (userEmail) {
+          setProfile((prev) => ({ ...prev, email: userEmail }));
+        }
+        showToast(`Welcome to QuickApply, ${profile.fullName.split(' ')[0]}!`);
+      };
+
+      const signup = (formData) => {
+        const newProfile = {
+          ...profile,
+          fullName: formData.fullName || 'Student Pilot',
+          email: formData.email || 'student@quickapply.dev',
+          phone: formData.phone || profile.phone || '+91 98765 43210',
+          college: formData.college || 'Institute of Technology',
+          gradYear: formData.gradYear || '2027',
+          resumeFileName: formData.resumeFileName || profile.resumeFileName || 'Janvi_Kaware_Resume_2026.pdf',
+          resumeFileSize: formData.resumeFileSize || profile.resumeFileSize || '1.4 MB',
+          linkedinUrl: formData.linkedinUrl || profile.linkedinUrl || '',
+          githubUrl: formData.githubUrl || profile.githubUrl || '',
+          tenthMarks: formData.tenthMarks || profile.tenthMarks || '',
+          twelfthMarks: formData.twelfthMarks || profile.twelfthMarks || '',
+          gradCgpa: formData.gradCgpa || profile.gradCgpa || '',
+          postGradCgpa: formData.postGradCgpa || profile.postGradCgpa || '',
+          targetDomain: formData.targetDomain || DOMAINS.DATA_ANALYTICS,
+          targetGoal: formData.targetGoal || GOAL_TYPES.INTERNSHIP,
+          assessmentCompleted: false,
+          assessmentScore: 50
+        };
+        setProfile(newProfile);
+        setIsAuthenticated(true);
+        localStorage.setItem('pathpilot_auth', 'true');
+        localStorage.setItem('opportunityos_profile', JSON.stringify(newProfile));
+        setActiveTab('radar');
+        setIsProfileModalOpen(false);
+        showToast(`Welcome ${newProfile.fullName}! Your profile & PDF resume are ready for Quick Apply.`);
+      };
+
+      const logout = () => {
+        setIsAuthenticated(false);
+        localStorage.removeItem('pathpilot_auth');
+        showToast('Logged out of QuickApply');
+      };
+
+      useEffect(() => { localStorage.setItem('opportunityos_profile', JSON.stringify(profile)); }, [profile]);
+      useEffect(() => { localStorage.setItem('opportunityos_roadmaps', JSON.stringify(roadmaps)); }, [roadmaps]);
+      useEffect(() => { localStorage.setItem('opportunityos_applications', JSON.stringify(applications)); }, [applications]);
+
+      const showToast = (message) => {
+        setToastMessage(message);
+        setTimeout(() => setToastMessage(null), 4000);
+      };
+
+      const toggleTask = (domain, phaseId, taskId) => {
+        setRoadmaps((prevRoadmaps) => {
+          const domainPhases = prevRoadmaps[domain] || [];
+          const updatedPhases = domainPhases.map((phase) => {
+            if (phase.id !== phaseId) return phase;
+            return {
+              ...phase,
+              tasks: phase.tasks.map((task) => task.id === taskId ? { ...task, completed: !task.completed } : task)
+            };
+          });
+          return { ...prevRoadmaps, [domain]: updatedPhases };
+        });
+      };
+
+      const currentDomainRoadmap = roadmaps[profile.targetDomain] || ROADMAP_TEMPLATES[DOMAINS.DATA_ANALYTICS];
+
+      const overallReadinessScore = useMemo(() => {
+        let totalWeight = 0;
+        let completedWeight = 0;
+        currentDomainRoadmap.forEach((phase) => {
+          phase.tasks.forEach((task) => {
+            totalWeight += task.weight || 10;
+            if (task.completed) completedWeight += task.weight || 10;
+          });
+        });
+        const roadmapPercent = totalWeight > 0 ? (completedWeight / totalWeight) * 100 : 50;
+        const assessmentPercent = profile.assessmentScore !== undefined ? profile.assessmentScore : 70;
+        const weightedScore = Math.round(roadmapPercent * 0.7 + assessmentPercent * 0.3);
+        return Math.min(Math.max(weightedScore, 10), 100);
+      }, [currentDomainRoadmap, profile.assessmentScore]);
+
+      const calculateMatchScore = (opp) => {
+        let score = 50;
+        if (opp.domain === profile.targetDomain) score += 25;
+        if (opp.type === profile.targetGoal) score += 15;
+        score += Math.round((overallReadinessScore / 100) * 10);
+        return Math.min(Math.max(score, 45), 98);
+      };
+
+      const submitApplication = (opp, customData = {}) => {
+        const existingIndex = applications.findIndex((a) => a.oppId === opp.id);
+        const now = new Date();
+        const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+        if (existingIndex >= 0) {
+          setApplications((prev) => {
+            const copy = [...prev];
+            copy[existingIndex] = { ...copy[existingIndex], status: 'Applied', appliedDate: formattedDate, ...customData };
+            return copy;
+          });
+        } else {
+          const newApp = {
+            id: `app-${Date.now()}`,
+            oppId: opp.id,
+            title: opp.title,
+            company: opp.company,
+            type: opp.type,
+            domain: opp.domain,
+            appliedDate: formattedDate,
+            status: 'Applied',
+            sourceUrl: opp.sourceUrl,
+            ...customData
+          };
+          setApplications((prev) => [newApp, ...prev]);
+        }
+        showToast(`⚡ Quick Apply submitted for ${opp.title}!`);
+      };
+
+      const updateApplicationStatus = (appId, newStatus) => {
+        setApplications((prev) => prev.map((app) => (app.id === appId ? { ...app, status: newStatus } : app)));
+        showToast(`Status updated to "${newStatus}"`);
+      };
+
+      const deleteApplication = (appId) => {
+        setApplications((prev) => prev.filter((app) => app.id !== appId));
+        showToast('Application record removed');
+      };
+
+      return (
+        <AppContext.Provider
+          value={{
+            profile, setProfile, updateProfile, isProfileModalOpen, setIsProfileModalOpen,
+            roadmaps, setRoadmaps, currentDomainRoadmap,
+            applications, activeTab, setActiveTab, overallReadinessScore,
+            toggleTask, calculateMatchScore, quickApplyModalOpp, setQuickApplyModalOpp,
+            submitApplication, updateApplicationStatus, deleteApplication, showToast, toastMessage,
+            isAuthenticated, login, signup, logout, globalSearchQuery, setGlobalSearchQuery, triggerSearch
+          }}
+        >
+          {children}
+        </AppContext.Provider>
+      );
+    };
+
+    const useApp = () => useContext(AppContext);
+
+    // Public Standard Header (Logged-out state)
+    const PublicHeader = () => {
+      const { login } = useApp();
+
+      return (
+        <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/95 backdrop-blur-md transition-all shadow-md">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-amber-400 p-[2px] shadow-md shadow-blue-500/10">
+                <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                  <Icon name="zap" className="w-4 h-4 text-amber-300" />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xl font-black tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-amber-300 bg-clip-text text-transparent">
+                    QuickApply
+                  </span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    PRO
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 hidden sm:block tracking-wide">
+                  Your Goal. Your Roadmap. Your Opportunities.
+                </p>
+              </div>
+            </div>
+
+            <div className="hidden lg:flex items-center gap-5 text-xs text-slate-400 font-medium">
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <Icon name="compass" className="w-3.5 h-3.5 text-blue-400" />
+                Skill Assessment
+              </span>
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <Icon name="layout" className="w-3.5 h-3.5 text-indigo-400" />
+                Dynamic Roadmap
+              </span>
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <Icon name="radar" className="w-3.5 h-3.5 text-emerald-400" />
+                12+ Opportunities
+              </span>
+              <span className="flex items-center gap-1.5 text-amber-300 font-semibold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+                <Icon name="zap" className="w-3.5 h-3.5 text-amber-400" />
+                ⚡ 1-Click Quick Apply
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => login('janvi.kaware@example.com', 'password123')}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 hover:opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20 active:scale-95"
+              >
+                <Icon name="zap" className="w-3.5 h-3.5 text-amber-300" />
+                <span>⚡ Demo Login</span>
+              </button>
+            </div>
+          </div>
+        </header>
+      );
+    };
+
+    // Standard Header (Navbar)
+    const Navbar = () => {
+      const {
+        profile,
+        activeTab,
+        setActiveTab,
+        overallReadinessScore,
+        logout,
+        globalSearchQuery,
+        triggerSearch,
+        setIsProfileModalOpen
+      } = useApp();
+
+      const [searchInput, setSearchInput] = useState(globalSearchQuery || '');
+
+      useEffect(() => {
+        setSearchInput(globalSearchQuery || '');
+      }, [globalSearchQuery]);
+
+      const handleSearchSubmit = (e) => {
+        if (e) e.preventDefault();
+        triggerSearch(searchInput);
+      };
+
+      const navItems = [
+        { id: 'direction', label: '🎯 Direction', icon: 'compass' },
+        { id: 'dashboard', label: '📊 Dashboard', icon: 'layout' },
+        { id: 'radar', label: '📡 Opportunities', icon: 'radar', badge: '12 Live' },
+        { id: 'applications', label: '📋 Applications', icon: 'checkfile' }
+      ];
+
+      return (
+        <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/95 backdrop-blur-md transition-all shadow-md">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
+            {/* Brand */}
+            <div onClick={() => setActiveTab('dashboard')} className="flex items-center gap-2.5 cursor-pointer group shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-amber-400 p-[2px] transition-transform duration-300 group-hover:scale-105 shadow-md shadow-blue-500/10">
+                <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                  <Icon name="zap" className="w-4 h-4 text-amber-300" />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xl font-black tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-amber-300 bg-clip-text text-transparent">
+                    QuickApply
+                  </span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    PRO
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 hidden xl:block tracking-wide">
+                  Your Goal. Your Roadmap. Your Opportunities.
+                </p>
+              </div>
+            </div>
+
+            {/* Direct Header Search */}
+            <form onSubmit={handleSearchSubmit} className="hidden md:flex items-center flex-1 max-w-sm lg:max-w-md mx-2 relative group">
+              <Icon name="search" className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 group-focus-within:text-blue-400 transition-colors pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search roles, companies (Spotify, Stripe) or skills..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full pl-9 pr-24 py-1.5 bg-slate-900/90 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-slate-950 transition-all"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput('');
+                    triggerSearch('');
+                  }}
+                  title="Clear search"
+                  className="absolute right-20 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-0.5"
+                >
+                  <Icon name="x" className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <button
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-semibold flex items-center gap-1 transition-all shadow-sm active:scale-95 cursor-pointer"
+              >
+                <span>Search</span>
+                <span className="text-[9px] opacity-75 font-mono">↵</span>
+              </button>
+            </form>
+
+            {/* Navigation Tabs */}
+            <nav className="hidden lg:flex items-center gap-1 shrink-0">
+              {navItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`relative px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                      isActive ? 'text-white bg-slate-800/80 shadow-inner' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.badge && (
+                      <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                        {item.badge}
+                      </span>
+                    )}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full" />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Utilities: Readiness + Profile Modal Trigger + Logout */}
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+              <button
+                onClick={() => setActiveTab('radar')}
+                title="Search Opportunities"
+                className="md:hidden p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+              >
+                <Icon name="search" className="w-4 h-4" />
+              </button>
+
+              <div
+                onClick={() => setActiveTab('direction')}
+                title="Readiness Score. Click to re-assess"
+                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 cursor-pointer transition-all"
+              >
+                <div className="relative w-7 h-7 flex items-center justify-center">
+                  <svg className="w-7 h-7 -rotate-90">
+                    <circle cx="14" cy="14" r="11" className="stroke-slate-800" strokeWidth="2.5" fill="transparent" />
+                    <circle
+                      cx="14" cy="14" r="11" className="stroke-emerald-400 transition-all duration-500" strokeWidth="2.5"
+                      strokeDasharray="69.1" strokeDashoffset={69.1 - (69.1 * overallReadinessScore) / 100}
+                      strokeLinecap="round" fill="transparent"
+                    />
+                  </svg>
+                  <span className="absolute text-[9px] font-bold text-slate-200">{overallReadinessScore}%</span>
+                </div>
+                <div className="hidden sm:flex flex-col text-left">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Readiness</span>
+                  <span className="text-[11px] font-bold text-emerald-400 leading-none">
+                    {overallReadinessScore >= 80 ? 'Market Ready' : 'Building'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Profile Avatar Trigger Button */}
+              <button
+                onClick={() => setIsProfileModalOpen(true)}
+                title="View & Edit Candidate Profile for ⚡ Quick Apply"
+                className="flex items-center gap-2 pl-1.5 pr-2 py-1 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-900 transition-all cursor-pointer group"
+              >
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-emerald-400 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                  {profile.fullName ? profile.fullName.split(' ').map(n => n[0]).join('').slice(0, 2) : 'SP'}
+                </div>
+                <div className="hidden xl:flex flex-col text-left">
+                  <span className="text-xs font-semibold text-slate-200 leading-tight group-hover:text-blue-400 transition-colors">
+                    {profile.fullName || 'Student Pilot'}
+                  </span>
+                  <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                    <span>Profile</span>
+                    <span className="text-emerald-400 font-bold">• ⚡ Quick Apply</span>
+                  </span>
+                </div>
+                <Icon name="edit" className="w-3 h-3 text-slate-500 group-hover:text-blue-400 transition-colors hidden sm:block" />
+              </button>
+
+              <button
+                onClick={logout}
+                title="Sign Out"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-red-500/40 hover:bg-red-500/10 text-slate-400 hover:text-red-400 text-xs font-semibold transition-all"
+              >
+                <Icon name="logout" className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Sign Out</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile nav tabs */}
+          <div className="lg:hidden flex items-center justify-around border-t border-slate-800/80 bg-slate-950 px-2 py-1.5">
+            {navItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex flex-col items-center py-1 px-2 text-[10px] font-medium rounded-lg transition-colors ${
+                    isActive ? 'text-blue-400 bg-slate-900' : 'text-slate-400'
+                  }`}
+                >
+                  <Icon name={item.icon} className="w-4 h-4 mb-0.5" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </header>
+      );
+    };
+
+    // User Profile Modal Component
+    const UserProfileModal = () => {
+      const { profile, updateProfile, isProfileModalOpen, setIsProfileModalOpen } = useApp();
+
+      const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        phone: '',
+        college: '',
+        gradYear: '',
+        linkedinUrl: '',
+        githubUrl: '',
+        tenthMarks: '',
+        twelfthMarks: '',
+        gradCgpa: '',
+        postGradCgpa: '',
+        targetDomain: '',
+        targetGoal: ''
+      });
+
+      useEffect(() => {
+        if (profile) {
+          setFormData({
+            fullName: profile.fullName || '',
+            email: profile.email || '',
+            phone: profile.phone || '',
+            college: profile.college || '',
+            gradYear: profile.gradYear || '2027',
+            linkedinUrl: profile.linkedinUrl || '',
+            githubUrl: profile.githubUrl || '',
+            tenthMarks: profile.tenthMarks || '',
+            twelfthMarks: profile.twelfthMarks || '',
+            gradCgpa: profile.gradCgpa || '',
+            postGradCgpa: profile.postGradCgpa || '',
+            targetDomain: profile.targetDomain || DOMAINS.DATA_ANALYTICS,
+            targetGoal: profile.targetGoal || GOAL_TYPES.INTERNSHIP
+          });
+        }
+      }, [profile, isProfileModalOpen]);
+
+      if (!isProfileModalOpen) return null;
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        updateProfile(formData);
+        setIsProfileModalOpen(false);
+      };
+
+      const handleQuickDemoFill = () => {
+        setFormData((prev) => ({
+          ...prev,
+          phone: '+91 98765 43210',
+          linkedinUrl: 'https://linkedin.com/in/janvikaware',
+          githubUrl: 'https://github.com/JanviKaware27',
+          tenthMarks: '94.6%',
+          twelfthMarks: '92.4%',
+          gradCgpa: '8.85 CGPA',
+          postGradCgpa: 'Pursuing / 8.60 SGPA'
+        }));
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl p-6 sm:p-8 relative">
+            <button
+              onClick={() => setIsProfileModalOpen(false)}
+              className="absolute top-5 right-5 p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+            >
+              <Icon name="x" className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-emerald-400 p-[2px] shadow-lg shadow-blue-500/20 shrink-0">
+                <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                  <Icon name="user" className="w-6 h-6 text-blue-400" />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-black text-white">Student Candidate Profile</h2>
+                  <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    ⚡ Quick Apply Ready
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  These credentials are auto-filled for 1-click Quick Apply submissions across jobs & hackathons.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Contact & Social Links */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between pb-1 border-b border-slate-800">
+                  <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Icon name="link" className="w-3.5 h-3.5 text-blue-400" /> Contact & Social Profiles
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleQuickDemoFill}
+                    className="text-[11px] font-semibold text-blue-400 hover:text-blue-300 underline"
+                  >
+                    Auto-fill verified demo data
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Phone Number</label>
+                    <div className="relative">
+                      <Icon name="phone" className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+91 98765 43210"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">LinkedIn Profile Link</label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://linkedin.com/in/username"
+                      value={formData.linkedinUrl}
+                      onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">GitHub Profile Link</label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://github.com/username"
+                      value={formData.githubUrl}
+                      onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Academic Records */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-800">
+                  <Icon name="graduation" className="w-3.5 h-3.5 text-emerald-400" /> Academic Dossier (10th, 12th & Higher Ed)
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">10th Class Marks (%)</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 94.6%"
+                      value={formData.tenthMarks}
+                      onChange={(e) => setFormData({ ...formData, tenthMarks: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">12th Class Marks (%)</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 92.4%"
+                      value={formData.twelfthMarks}
+                      onChange={(e) => setFormData({ ...formData, twelfthMarks: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Graduation SGPA / CGPA</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 8.85 CGPA"
+                      value={formData.gradCgpa}
+                      onChange={(e) => setFormData({ ...formData, gradCgpa: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Post Graduation SGPA / CGPA</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 8.60 CGPA or Pursuing / N/A"
+                      value={formData.postGradCgpa}
+                      onChange={(e) => setFormData({ ...formData, postGradCgpa: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Education Details */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-800">
+                  <Icon name="building" className="w-3.5 h-3.5 text-amber-400" /> College & General Details
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">College / University</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.college}
+                      onChange={(e) => setFormData({ ...formData, college: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsProfileModalOpen(false)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-blue-600/30"
+                >
+                  <Icon name="checkCircle" className="w-4 h-4" />
+                  <span>Save & Verify Candidate Profile</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    // Assessment Component
+    const OnboardingAssessment = () => {
+      const { profile, setProfile, setActiveTab, showToast } = useApp();
+      const [step, setStep] = useState(1);
+      const [selectedGoal, setSelectedGoal] = useState(profile.targetGoal);
+      const [selectedDomain, setSelectedDomain] = useState(profile.targetDomain);
+      const [selectedSkillLevel, setSelectedSkillLevel] = useState(profile.skillLevel);
+      const [diagnosticAnswers, setDiagnosticAnswers] = useState({});
+      const [assessmentSubmitted, setAssessmentSubmitted] = useState(false);
+
+      const currentQuestions = DIAGNOSTIC_QUESTIONS[selectedDomain] || DIAGNOSTIC_QUESTIONS[DOMAINS.DATA_ANALYTICS];
+
+      const handleFinish = () => {
+        let correctCount = 0;
+        const gaps = [];
+        currentQuestions.forEach((q) => {
+          if (diagnosticAnswers[q.id] === q.correct) correctCount += 1;
+          else gaps.push(q.skillGap);
+        });
+        const score = Math.round((correctCount / currentQuestions.length) * 100);
+        setProfile({
+          ...profile,
+          targetGoal: selectedGoal,
+          targetDomain: selectedDomain,
+          skillLevel: selectedSkillLevel,
+          assessmentScore: score,
+          skillGaps: gaps.length > 0 ? gaps : ['Advanced System Architecture Mastery']
+        });
+        setAssessmentSubmitted(true);
+        showToast(`Direction updated! Assessment Score: ${score}%`);
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-extrabold text-white">Find Your Direction & Assess Readiness</h1>
+            <p className="text-slate-400 text-sm mt-1">Configure your goal and benchmark your capabilities against real industry bars.</p>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8">
+            {step === 1 && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Step 1: Choose Primary Target Goal</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[GOAL_TYPES.INTERNSHIP, GOAL_TYPES.JOB, GOAL_TYPES.HACKATHON, GOAL_TYPES.CERTIFICATION].map((g) => (
+                    <div
+                      key={g}
+                      onClick={() => setSelectedGoal(g)}
+                      className={`p-5 rounded-xl border cursor-pointer ${selectedGoal === g ? 'bg-blue-600/10 border-blue-500' : 'bg-slate-950 border-slate-800'}`}
+                    >
+                      <h3 className="font-bold text-base">{g}</h3>
+                      <p className="text-xs text-slate-400 mt-1">Tailors matching opportunities and roadmap milestones to this outcome.</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 flex justify-end">
+                  <button onClick={() => setStep(2)} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold text-xs">
+                    Next: Choose Domain →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Step 2: Choose Technical Domain</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {Object.values(DOMAINS).map((d) => (
+                    <div
+                      key={d}
+                      onClick={() => { setSelectedDomain(d); setDiagnosticAnswers({}); }}
+                      className={`p-5 rounded-xl border cursor-pointer ${selectedDomain === d ? 'bg-blue-600/10 border-blue-500' : 'bg-slate-950 border-slate-800'}`}
+                    >
+                      <h3 className="font-bold text-base">{d}</h3>
+                      <p className="text-xs text-slate-400 mt-1">Calibrates benchmarks and diagnostic questions.</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 flex justify-between">
+                  <button onClick={() => setStep(1)} className="px-4 py-2 bg-slate-800 rounded-xl text-xs">Back</button>
+                  <button onClick={() => setStep(3)} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold text-xs">
+                    Next: Skill Level →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Step 3: Select Skill Level Baseline</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {['Beginner', 'Intermediate', 'Advanced'].map((lvl) => (
+                    <div
+                      key={lvl}
+                      onClick={() => setSelectedSkillLevel(lvl)}
+                      className={`p-5 rounded-xl border cursor-pointer ${selectedSkillLevel === lvl ? 'bg-blue-600/10 border-blue-500' : 'bg-slate-950 border-slate-800'}`}
+                    >
+                      <h3 className="font-bold text-base">{lvl}</h3>
+                      <p className="text-xs text-slate-400 mt-1">Self-rated confidence in {selectedDomain}.</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 flex justify-between">
+                  <button onClick={() => setStep(2)} className="px-4 py-2 bg-slate-800 rounded-xl text-xs">Back</button>
+                  <button onClick={() => setStep(4)} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold text-xs">
+                    Take Diagnostic Quiz →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div>
+                {!assessmentSubmitted ? (
+                  <div>
+                    <h2 className="text-xl font-bold mb-4">Step 4: Diagnostic Assessment ({selectedDomain})</h2>
+                    <div className="space-y-4 mb-6">
+                      {currentQuestions.map((q, qIndex) => (
+                        <div key={q.id} className="p-4 rounded-xl bg-slate-950 border border-slate-800">
+                          <p className="text-sm font-semibold mb-3">{qIndex + 1}. {q.question}</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {q.options.map((opt, optIndex) => (
+                              <button
+                                key={optIndex}
+                                onClick={() => setDiagnosticAnswers((prev) => ({ ...prev, [q.id]: optIndex }))}
+                                className={`p-2.5 text-left text-xs rounded-lg border ${
+                                  diagnosticAnswers[q.id] === optIndex ? 'bg-blue-600/20 border-blue-500 text-white font-bold' : 'bg-slate-900 border-slate-800 text-slate-400'
+                                }`}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-between">
+                      <button onClick={() => setStep(3)} className="px-4 py-2 bg-slate-800 rounded-xl text-xs">Back</button>
+                      <button
+                        onClick={handleFinish}
+                        disabled={Object.keys(diagnosticAnswers).length < currentQuestions.length}
+                        className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl font-semibold text-xs"
+                      >
+                        Calculate Readiness & Generate Plan
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full mx-auto flex items-center justify-center mb-3">
+                      <Icon name="check" className="w-6 h-6" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Diagnostic Complete!</h2>
+                    <p className="text-sm text-slate-400 mb-6">Your readiness and radar recommendations have been updated.</p>
+                    <div className="flex justify-center gap-3">
+                      <button onClick={() => setActiveTab('dashboard')} className="px-5 py-2.5 bg-blue-600 rounded-xl text-xs font-semibold">
+                        View Dashboard
+                      </button>
+                      <button onClick={() => setActiveTab('radar')} className="px-5 py-2.5 bg-slate-800 rounded-xl text-xs font-semibold">
+                        Explore Radar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // Dashboard Component
+    const Dashboard = () => {
+      const { profile, currentDomainRoadmap, overallReadinessScore, toggleTask, setActiveTab, applications } = useApp();
+      const topGap = profile.skillGaps?.[0] || 'Interactive Dashboard Deployment';
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-950 via-slate-900 to-slate-900 border border-blue-900/40 p-6 sm:p-8">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  Target: {profile.targetGoal} in {profile.targetDomain}
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+                  Welcome back, {profile.fullName.split(' ')[0]} 👋
+                </h1>
+                <p className="text-slate-400 text-sm mt-1">
+                  Overall Readiness Score: <strong className="text-emerald-400">{overallReadinessScore}%</strong>.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-center">
+                  <span className="text-[10px] text-slate-400 block uppercase">Applications</span>
+                  <span className="text-xl font-bold text-white">{applications.length}</span>
+                </div>
+                <button onClick={() => setActiveTab('radar')} className="px-4 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-semibold">
+                  Launch Radar →
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 rounded-xl bg-blue-900/20 border border-blue-500/30 flex items-center justify-between gap-4">
+              <div>
+                <span className="text-xs uppercase font-extrabold text-blue-400 block">Next Best Action</span>
+                <p className="text-sm font-semibold text-slate-200 mt-0.5">
+                  Complete "{topGap}" to close your biggest skill gap and boost readiness to 85%+.
+                </p>
+              </div>
+              <button
+                onClick={() => { const el = document.getElementById('roadmap-sec'); if (el) el.scrollIntoView({ behavior: 'smooth'}); }}
+                className="text-xs px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 border border-blue-500/40"
+              >
+                Review Tasks ↓
+              </button>
+            </div>
+          </div>
+
+          {/* Roadmap Grid */}
+          <div id="roadmap-sec" className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8">
+            <h2 className="text-xl font-bold text-white mb-1">Dynamic Career Roadmap ({profile.targetDomain})</h2>
+            <p className="text-xs text-slate-400 mb-6">Toggle tasks as you complete them to automatically update your Readiness Score.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {currentDomainRoadmap.map((phase) => (
+                <div key={phase.id} className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold text-sm text-white mb-1">{phase.phaseName}</h3>
+                    <p className="text-[11px] text-slate-400 mb-3">{phase.description}</p>
+                    <div className="space-y-2">
+                      {phase.tasks.map((task) => (
+                        <div
+                          key={task.id}
+                          onClick={() => toggleTask(profile.targetDomain, phase.id, task.id)}
+                          className={`p-2.5 rounded-lg border text-xs cursor-pointer flex items-center gap-2 ${
+                            task.completed ? 'bg-emerald-900/20 border-emerald-500/30 text-slate-400 line-through' : 'bg-slate-900 border-slate-800 text-slate-200'
+                          }`}
+                        >
+                          <Icon name={task.completed ? 'checkCircle' : 'circle'} className={`w-3.5 h-3.5 ${task.completed ? 'text-emerald-400' : 'text-slate-600'}`} />
+                          <span>{task.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Radar Component with Interactive Search Engine
+    const OpportunityRadar = () => {
+      const { profile, calculateMatchScore, setQuickApplyModalOpp, applications, globalSearchQuery, setGlobalSearchQuery } = useApp();
+      const [filterDomain, setFilterDomain] = useState('ALL');
+      const [searchQuery, setSearchQuery] = useState(globalSearchQuery || '');
+      const [activeRadarTab, setActiveRadarTab] = useState('forYou');
+      const [expandedWhy, setExpandedWhy] = useState(null);
+
+      useEffect(() => {
+        setSearchQuery(globalSearchQuery || '');
+      }, [globalSearchQuery]);
+
+      const handleSearchSubmit = (e) => {
+        if (e) e.preventDefault();
+        setGlobalSearchQuery(searchQuery);
+      };
+
+      const handleClear = () => {
+        setSearchQuery('');
+        setGlobalSearchQuery('');
+      };
+
+      const filteredOpps = useMemo(() => {
+        return MOCK_OPPORTUNITIES.filter((opp) => {
+          if (filterDomain !== 'ALL' && opp.domain !== filterDomain) return false;
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            const matchesTitle = opp.title.toLowerCase().includes(q);
+            const matchesCompany = opp.company.toLowerCase().includes(q);
+            const matchesDomain = opp.domain.toLowerCase().includes(q);
+            const matchesType = opp.type.toLowerCase().includes(q);
+            const matchesSkills = opp.requiredSkills.some((s) => s.toLowerCase().includes(q));
+            const matchesDesc = opp.description.toLowerCase().includes(q);
+            if (!matchesTitle && !matchesCompany && !matchesSkills && !matchesDomain && !matchesType && !matchesDesc) return false;
+          }
+
+          if (activeRadarTab === 'deadlines') return opp.daysLeft <= 15;
+          if (activeRadarTab === 'nextRoadmap') return opp.domain === profile.targetDomain;
+          return true;
+        }).sort((a, b) => {
+          if (activeRadarTab === 'deadlines') return a.daysLeft - b.daysLeft;
+          return calculateMatchScore(b) - calculateMatchScore(a);
+        });
+      }, [filterDomain, searchQuery, activeRadarTab, profile, calculateMatchScore]);
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-2">
+                <Icon name="radar" className="w-3.5 h-3.5" />
+                <span>Deterministic Recommendation Engine</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Opportunity Radar</h1>
+              <p className="text-slate-400 text-sm">Matching opportunities with deterministic match ratings and ⚡ Quick Apply pre-fill.</p>
+            </div>
+
+            <div className="flex items-center bg-slate-900 border border-slate-800 p-1 rounded-xl">
+              {[
+                { id: 'forYou', label: '🔥 For You' },
+                { id: 'deadlines', label: "⏰ Don't Miss" },
+                { id: 'nextRoadmap', label: '🎯 Roadmap Aligned' }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveRadarTab(tab.id)}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    activeRadarTab === tab.id ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search & Filter Bar */}
+          <form onSubmit={handleSearchSubmit} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-3">
+            <div className="relative w-full md:flex-1">
+              <Icon name="search" className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search by role, company (e.g. Spotify, Stripe), or skill (e.g. SQL, React)..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setGlobalSearchQuery(e.target.value);
+                }}
+                className="w-full pl-10 pr-24 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs sm:text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  title="Clear search"
+                  className="absolute right-16 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
+                >
+                  <Icon name="x" className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <button
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all active:scale-95 cursor-pointer"
+              >
+                Search
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <select
+                value={filterDomain}
+                onChange={(e) => setFilterDomain(e.target.value)}
+                className="w-full md:w-auto px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+              >
+                <option value="ALL">All Domains</option>
+                <option value={DOMAINS.DATA_ANALYTICS}>Data Analytics</option>
+                <option value={DOMAINS.DATA_SCIENCE}>Data Science</option>
+                <option value={DOMAINS.WEB_DEV}>Web Development</option>
+                <option value={DOMAINS.CLOUD_AI}>Cloud / AI</option>
+              </select>
+            </div>
+          </form>
+
+          {/* Search Result Feedback */}
+          {searchQuery.trim() ? (
+            <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-blue-950/40 border border-blue-500/30 text-xs">
+              <span className="text-slate-300">
+                Showing <strong className="text-blue-400 font-bold">{filteredOpps.length}</strong> matching opportunities for &ldquo;<span className="text-white font-semibold">{searchQuery}</span>&rdquo;
+              </span>
+              <button onClick={handleClear} className="text-blue-400 hover:text-blue-300 font-semibold underline text-xs">
+                Clear Search
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+              <span>Showing <strong className="text-white font-bold">{filteredOpps.length}</strong> matching opportunities</span>
+              <span>Target: <strong className="text-blue-400">{profile.targetGoal}</strong> in <strong className="text-blue-400">{profile.targetDomain}</strong></span>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {filteredOpps.length === 0 && (
+            <div className="p-12 text-center bg-slate-900/60 border border-slate-800 rounded-2xl">
+              <Icon name="search" className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-white mb-1">No Opportunities Found</h3>
+              <p className="text-slate-400 text-xs max-w-md mx-auto mb-4">
+                We couldn&apos;t find any positions matching &ldquo;{searchQuery}&rdquo;. Try searching for &ldquo;Spotify&rdquo;, &ldquo;Stripe&rdquo;, &ldquo;SQL&rdquo;, or &ldquo;Frontend&rdquo;.
+              </p>
+              <button
+                onClick={() => {
+                  handleClear();
+                  setFilterDomain('ALL');
+                }}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-all shadow-md"
+              >
+                Reset Filters & View All 12 Opportunities
+              </button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredOpps.map((opp) => {
+              const score = calculateMatchScore(opp);
+              const applied = applications.some((a) => a.oppId === opp.id && a.status === 'Applied');
+
+              return (
+                <div key={opp.id} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">{opp.type}</span>
+                      <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">{score}% Match</span>
+                    </div>
+                    <h3 className="font-bold text-base text-white">{opp.title}</h3>
+                    <p className="text-xs text-slate-400 mb-2">{opp.company} • {opp.stipendOrSalary}</p>
+                    <p className="text-xs text-slate-400 line-clamp-2 mb-3">{opp.description}</p>
+
+                    <button
+                      onClick={() => setExpandedWhy(expandedWhy === opp.id ? null : opp.id)}
+                      className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold mb-3 block"
+                    >
+                      {expandedWhy === opp.id ? 'Hide match reasoning ▲' : 'Why am I seeing this? ▼'}
+                    </button>
+                    {expandedWhy === opp.id && (
+                      <div className="p-3 rounded-lg bg-slate-950 text-[11px] text-slate-300 space-y-1 mb-3">
+                        <p><strong>Goal:</strong> {opp.whyFit.goalMatch}</p>
+                        <p><strong>Skill:</strong> {opp.whyFit.skillMatch}</p>
+                        <p className="text-emerald-400"><strong>Impact:</strong> {opp.whyFit.roadmapImpact}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-800 flex justify-between items-center">
+                    <span className="text-[11px] text-amber-400 font-semibold">Due in {opp.daysLeft} days</span>
+                    {applied ? (
+                      <span className="text-xs text-emerald-400 font-bold">✓ Applied</span>
+                    ) : (
+                      <button
+                        onClick={() => setQuickApplyModalOpp(opp)}
+                        className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow-md shadow-blue-600/20"
+                      >
+                        <Icon name="zap" className="w-3.5 h-3.5 text-amber-300" />
+                        <span>⚡ QUICK APPLY</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    };
+
+    // Quick Apply Modal
+    const QuickApplyModal = () => {
+      const { profile, quickApplyModalOpp, setQuickApplyModalOpp, submitApplication, setActiveTab, setIsProfileModalOpen } = useApp();
+      if (!quickApplyModalOpp) return null;
+
+      const handleContinue = () => {
+        submitApplication(quickApplyModalOpp);
+        if (quickApplyModalOpp.sourceUrl) window.open(quickApplyModalOpp.sourceUrl, '_blank');
+        setQuickApplyModalOpp(null);
+        setActiveTab('applications');
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 relative shadow-2xl">
+            <button
+              onClick={() => setQuickApplyModalOpp(null)}
+              className="absolute top-4 right-4 p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
+            >
+              <Icon name="x" className="w-4 h-4" />
+            </button>
+
+            <div className="mb-5">
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-widest inline-flex items-center gap-1.5 mb-2">
+                <Icon name="zap" className="w-3.5 h-3.5 text-amber-300" />
+                ⚡ QUICK APPLY ASSISTANT
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-white">Application Ready — Saved Profile Auto-filled</h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Applying for <strong className="text-slate-200">{quickApplyModalOpp.title}</strong> at{' '}
+                <strong className="text-blue-400">{quickApplyModalOpp.company}</strong>.
+              </p>
+            </div>
+
+            {/* Dossier */}
+            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-3 mb-5">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                <span className="font-bold text-slate-300 uppercase tracking-wider text-[10px] flex items-center gap-1.5">
+                  <Icon name="checkCircle" className="w-3.5 h-3.5 text-emerald-400" /> Auto-Filled Candidate Dossier
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="text-blue-400 hover:text-blue-300 text-[11px] font-semibold flex items-center gap-1 underline"
+                >
+                  <Icon name="edit" className="w-3 h-3" />
+                  <span>Edit Details</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div><span className="text-slate-500 block text-[10px]">Candidate:</span><span className="font-semibold text-slate-200">{profile.fullName}</span></div>
+                <div><span className="text-slate-500 block text-[10px]">Email:</span><span className="font-semibold text-slate-200 truncate block">{profile.email}</span></div>
+                <div><span className="text-slate-500 block text-[10px]">Phone Number:</span><span className="font-semibold text-slate-200">{profile.phone || '+91 98765 43210'}</span></div>
+                <div><span className="text-slate-500 block text-[10px]">College:</span><span className="font-semibold text-slate-200 truncate block">{profile.college} ({profile.gradYear})</span></div>
+              </div>
+
+              {/* Academic Dossier */}
+              <div className="pt-2 border-t border-slate-800">
+                <span className="text-slate-400 block text-[11px] font-semibold mb-1.5 flex items-center gap-1">
+                  <Icon name="graduation" className="w-3.5 h-3.5 text-emerald-400" /> Verified Academic Credentials
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                  <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="block text-[10px] text-slate-400 font-medium">10th Class</span>
+                    <span className="text-xs font-bold text-emerald-400">{profile.tenthMarks || '94.6%'}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="block text-[10px] text-slate-400 font-medium">12th Class</span>
+                    <span className="text-xs font-bold text-emerald-400">{profile.twelfthMarks || '92.4%'}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="block text-[10px] text-slate-400 font-medium">Grad CGPA</span>
+                    <span className="text-xs font-bold text-blue-400">{profile.gradCgpa || '8.85 CGPA'}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="block text-[10px] text-slate-400 font-medium">Post Grad</span>
+                    <span className="text-xs font-bold text-indigo-300 truncate block">{profile.postGradCgpa || '8.60 SGPA'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social links */}
+              <div className="pt-2 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-slate-500 block text-[10px]">LinkedIn:</span>
+                  {profile.linkedinUrl ? (
+                    <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1 truncate font-semibold">
+                      <span className="truncate">{profile.linkedinUrl}</span>
+                      <Icon name="externalLink" className="w-3 h-3 shrink-0" />
+                    </a>
+                  ) : <span className="text-slate-500 italic">Not set</span>}
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">GitHub:</span>
+                  {profile.githubUrl ? (
+                    <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white flex items-center gap-1 truncate font-semibold">
+                      <span className="truncate">{profile.githubUrl}</span>
+                      <Icon name="externalLink" className="w-3 h-3 shrink-0" />
+                    </a>
+                  ) : <span className="text-slate-500 italic">Not set</span>}
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                <span className="text-slate-500 text-[11px]">Attached Resume:</span>
+                <span className="text-blue-400 font-semibold flex items-center gap-1">
+                  <Icon name="fileText" className="w-3.5 h-3.5" />
+                  {profile.resumeFileName}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-200 mb-5 flex items-start gap-2.5">
+              <Icon name="shield" className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-amber-300">QuickApply 1-Click Hand-Off</strong>
+                <span className="text-[11px] text-amber-200/80">Your 10th, 12th, and CGPA records are bundled. Complete any required OTP/CAPTCHA on the verified site.</span>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setQuickApplyModalOpp(null)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300">Cancel</button>
+              <button onClick={handleContinue} className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-blue-600/30">
+                <span>Continue to Official Application 🚀</span>
+                <Icon name="externalLink" className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Applications Tracker
+    const ApplicationTracker = () => {
+      const { applications, updateApplicationStatus, deleteApplication, setActiveTab } = useApp();
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Application Tracker</h1>
+              <p className="text-slate-400 text-sm">Real-time status updates and submission log.</p>
+            </div>
+            <button onClick={() => setActiveTab('radar')} className="px-4 py-2 bg-blue-600 rounded-xl text-xs font-semibold">
+              Find More →
+            </button>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th className="p-4">Opportunity</th>
+                  <th className="p-4">Domain</th>
+                  <th className="p-4">Date</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {applications.map((app) => (
+                  <tr key={app.id}>
+                    <td className="p-4 font-bold text-white">{app.title} <span className="block text-[11px] font-normal text-slate-400">{app.company}</span></td>
+                    <td className="p-4">{app.domain}</td>
+                    <td className="p-4 text-slate-400">{app.appliedDate}</td>
+                    <td className="p-4">
+                      <select
+                        value={app.status}
+                        onChange={(e) => updateApplicationStatus(app.id, e.target.value)}
+                        className="bg-slate-800 border border-slate-700 text-xs rounded px-2 py-1"
+                      >
+                        {['Saved', 'Applied', 'Interview', 'Selected'].map((st) => (
+                          <option key={st} value={st}>{st}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button onClick={() => deleteApplication(app.id)} className="text-red-400 hover:text-red-300 font-bold ml-2">✕</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    };
+
+    // AuthGate Component
+    const AuthGate = () => {
+      const { login, signup } = useApp();
+      const [authMode, setAuthMode] = useState('login');
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [fullName, setFullName] = useState('');
+      const [college, setCollege] = useState('');
+      const [phone, setPhone] = useState('');
+      const [resumeFileName, setResumeFileName] = useState('Janvi_Kaware_Resume_2026.pdf');
+      const [resumeFileSize, setResumeFileSize] = useState('1.4 MB');
+      const [linkedinUrl, setLinkedinUrl] = useState('');
+      const [githubUrl, setGithubUrl] = useState('');
+      const [tenthMarks, setTenthMarks] = useState('');
+      const [twelfthMarks, setTwelfthMarks] = useState('');
+      const [gradCgpa, setGradCgpa] = useState('');
+      const [postGradCgpa, setPostGradCgpa] = useState('');
+      const [targetDomain, setTargetDomain] = useState(DOMAINS.DATA_ANALYTICS);
+      const [targetGoal, setTargetGoal] = useState(GOAL_TYPES.INTERNSHIP);
+      const [formError, setFormError] = useState('');
+
+      const handleResumeChange = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+            setFormError('Please select a valid PDF file (.pdf format only).');
+            return;
+          }
+          setFormError('');
+          setResumeFileName(file.name);
+          const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+          setResumeFileSize(`${parseFloat(sizeMB) > 0 ? sizeMB : '0.8'} MB`);
+        }
+      };
+
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (!email || !password) { setFormError('Please enter both email and password.'); return; }
+        login(email, password);
+      };
+
+      const handleSignup = (e) => {
+        e.preventDefault();
+        if (!fullName || !email || !password) { setFormError('Please fill in your name, email, and password.'); return; }
+        signup({
+          fullName, email, college,
+          phone: phone || '+91 98765 43210',
+          resumeFileName: resumeFileName || 'Janvi_Kaware_Resume_2026.pdf',
+          resumeFileSize: resumeFileSize || '1.4 MB',
+          linkedinUrl: linkedinUrl || 'https://linkedin.com/in/janvikaware',
+          githubUrl: githubUrl || 'https://github.com/JanviKaware27',
+          tenthMarks: tenthMarks || '94.6%',
+          twelfthMarks: twelfthMarks || '92.4%',
+          gradCgpa: gradCgpa || '8.85 CGPA',
+          postGradCgpa: postGradCgpa || 'Pursuing / 8.60 SGPA',
+          targetDomain, targetGoal
+        });
+      };
+
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 bg-slate-950">
+          <div className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-3xl overflow-hidden border border-slate-800 bg-slate-900/80 shadow-2xl backdrop-blur-xl">
+            {/* Hero Banner */}
+            <div className="lg:col-span-5 p-8 bg-gradient-to-b from-blue-950/60 to-slate-950 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2.5 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-amber-400 p-[2px]">
+                    <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                      <Icon name="zap" className="w-5 h-5 text-amber-300" />
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xl font-black bg-gradient-to-r from-blue-400 via-indigo-300 to-amber-300 bg-clip-text text-transparent">
+                      QuickApply
+                    </span>
+                    <span className="block text-[10px] font-bold text-slate-400">Career Acceleration OS</span>
+                  </div>
+                </div>
+
+                <h2 className="text-2xl font-black text-white mb-2">Your Goal.<br />Your Roadmap.<br /><span className="text-emerald-400">Your Opportunities.</span></h2>
+                <p className="text-xs text-slate-400 mb-6">Stop application fatigue. 1-click apply with verified academic credentials and match radar.</p>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Icon name="checkCircle" className="w-4 h-4 text-emerald-400" />
+                    <span>AI Diagnostic Skill Assessment</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Icon name="layers" className="w-4 h-4 text-blue-400" />
+                    <span>4-Phase Dynamic Roadmap</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Icon name="radar" className="w-4 h-4 text-emerald-400" />
+                    <span>Opportunity Radar with Match Scores</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Icon name="zap" className="w-4 h-4 text-amber-400" />
+                    <span>⚡ 1-Click Quick Apply Assistant</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-slate-800 text-[11px] text-slate-500">
+                Student First • 100% Free
+              </div>
+            </div>
+
+            {/* Form */}
+            <div className="lg:col-span-7 p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
+              <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 mb-5">
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('login'); setFormError(''); }}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg ${authMode === 'login' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAuthMode('signup'); setFormError(''); }}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg ${authMode === 'signup' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+                >
+                  Create Account
+                </button>
+              </div>
+
+              {/* Demo button */}
+              <div className="mb-4 p-3 bg-blue-950/40 border border-blue-500/30 rounded-xl flex items-center justify-between">
+                <span className="text-xs text-slate-200">Evaluating? Quick access as <strong>Janvi</strong>.</span>
+                <button
+                  type="button"
+                  onClick={() => login('janvi.kaware@example.com', 'password123')}
+                  className="px-3 py-1 bg-blue-600 text-white font-bold text-xs rounded-lg"
+                >
+                  ⚡ Demo Access
+                </button>
+              </div>
+
+              {formError && <div className="mb-4 text-xs text-red-400 bg-red-950/40 p-2.5 rounded-lg border border-red-500/30">{formError}</div>}
+
+              {authMode === 'login' ? (
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Student Email</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="student@univ.edu"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200"
+                    />
+                  </div>
+                  <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-600/20">
+                    Sign In to QuickApply →
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleSignup} className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-0.5">Full Name *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Janvi Kaware"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-0.5">College</label>
+                      <input
+                        type="text"
+                        placeholder="Institute of Tech"
+                        value={college}
+                        onChange={(e) => setCollege(e.target.value)}
+                        className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-0.5">Email *</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="student@univ.edu"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-0.5">Password *</label>
+                      <input
+                        type="password"
+                        required
+                        placeholder="••••••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Profile Dossier Inputs */}
+                  <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-xl space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                        ⚡ Quick Apply Dossier Intake
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                        1-Click Ready
+                      </span>
+                    </div>
+
+                    {/* Resume PDF Upload */}
+                    <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                          <Icon name="fileText" className="w-3.5 h-3.5 text-red-400" />
+                          <span>Resume in PDF format *</span>
+                        </label>
+                        <span className="text-[10px] text-emerald-400 font-medium">✓ Verified PDF</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <div className="flex-1 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between min-w-0">
+                          <div className="flex items-center gap-1.5 truncate">
+                            <span className="text-[10px] px-1 py-0.2 rounded bg-red-500/20 text-red-400 font-bold uppercase">PDF</span>
+                            <span className="text-xs text-slate-200 truncate">{resumeFileName}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-500 shrink-0 ml-1">{resumeFileSize}</span>
+                        </div>
+                        <label className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold cursor-pointer shrink-0 text-center">
+                          <span>Choose PDF</span>
+                          <input type="file" accept=".pdf,application/pdf" onChange={handleResumeChange} className="hidden" />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">Phone Number</label>
+                        <input
+                          type="tel"
+                          placeholder="+91 98765 43210"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full px-2 py-1 bg-slate-900 border border-slate-800 rounded text-xs text-slate-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">LinkedIn URL</label>
+                        <input
+                          type="url"
+                          placeholder="https://linkedin.com/in/username"
+                          value={linkedinUrl}
+                          onChange={(e) => setLinkedinUrl(e.target.value)}
+                          className="w-full px-2 py-1 bg-slate-900 border border-slate-800 rounded text-xs text-slate-200"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] text-slate-400 mb-0.5">GitHub URL</label>
+                        <input
+                          type="url"
+                          placeholder="https://github.com/username"
+                          value={githubUrl}
+                          onChange={(e) => setGithubUrl(e.target.value)}
+                          className="w-full px-2 py-1 bg-slate-900 border border-slate-800 rounded text-xs text-slate-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">10th Class Marks (%)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 94.6%"
+                          value={tenthMarks}
+                          onChange={(e) => setTenthMarks(e.target.value)}
+                          className="w-full px-2 py-1 bg-slate-900 border border-slate-800 rounded text-xs text-slate-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">12th Class Marks (%)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 92.4%"
+                          value={twelfthMarks}
+                          onChange={(e) => setTwelfthMarks(e.target.value)}
+                          className="w-full px-2 py-1 bg-slate-900 border border-slate-800 rounded text-xs text-slate-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">Graduation CGPA</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 8.85 CGPA"
+                          value={gradCgpa}
+                          onChange={(e) => setGradCgpa(e.target.value)}
+                          className="w-full px-2 py-1 bg-slate-900 border border-slate-800 rounded text-xs text-slate-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-0.5">Post-Grad CGPA</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 8.60 / Pursuing"
+                          value={postGradCgpa}
+                          onChange={(e) => setPostGradCgpa(e.target.value)}
+                          className="w-full px-2 py-1 bg-slate-900 border border-slate-800 rounded text-xs text-slate-200"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-0.5">Domain</label>
+                      <select
+                        value={targetDomain}
+                        onChange={(e) => setTargetDomain(e.target.value)}
+                        className="w-full px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                      >
+                        {Object.values(DOMAINS).map((d) => <option key={d} value={d}>{d}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-0.5">Goal</label>
+                      <select
+                        value={targetGoal}
+                        onChange={(e) => setTargetGoal(e.target.value)}
+                        className="w-full px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200"
+                      >
+                        {Object.values(GOAL_TYPES).map((g) => <option key={g} value={g}>{g}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <button type="submit" className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-emerald-600 hover:opacity-90 text-white font-bold text-xs rounded-xl shadow-lg mt-2">
+                    Complete Profile & Start Roadmap 🚀
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Root App
+    function App() {
+      const { isAuthenticated, activeTab, toastMessage } = useApp();
+
+      if (!isAuthenticated) {
+        return (
+          <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+            <PublicHeader />
+            <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
+              <AuthGate />
+            </main>
+            {toastMessage && (
+              <div className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-emerald-500/40 text-emerald-400 text-xs px-4 py-3 rounded-xl shadow-xl">
+                ✓ {toastMessage}
+              </div>
+            )}
+            <footer className="border-t border-slate-900 py-5 text-center text-xs text-slate-500">
+              QuickApply © 2026 • Student Career Acceleration Platform • Your Goal. Your Roadmap. Your Opportunities.
+            </footer>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+          <Navbar />
+          <main className="flex-1 pb-16">
+            {activeTab === 'direction' && <OnboardingAssessment />}
+            {activeTab === 'dashboard' && <Dashboard />}
+            {activeTab === 'radar' && <OpportunityRadar />}
+            {activeTab === 'applications' && <ApplicationTracker />}
+          </main>
+          <QuickApplyModal />
+          <UserProfileModal />
+          {toastMessage && (
+            <div className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-emerald-500/40 text-emerald-400 text-xs px-4 py-3 rounded-xl shadow-xl">
+              ✓ {toastMessage}
+            </div>
+          )}
+          <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+            QuickApply © 2026 • Student Career Acceleration Platform
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <AppProvider>
+        <App />
+      </AppProvider>
+    );
+  </script>
+</body>
+</html>
